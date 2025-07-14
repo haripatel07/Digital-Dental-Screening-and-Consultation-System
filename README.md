@@ -1,1 +1,1 @@
-# AI-Dental-Detection-and-Recommendation-System
+# Digital-Dental-Screening-and-Consultation-System
