@@ -2,45 +2,51 @@ import 'package:flutter/material.dart';
 import '../models/chat_message.dart';
 
 class ChatbotScreen extends StatefulWidget {
+  const ChatbotScreen({super.key});
+
   @override
-  _ChatbotScreenState createState() => _ChatbotScreenState();
+  State<ChatbotScreen> createState() => _ChatbotScreenState();
 }
 
 class _ChatbotScreenState extends State<ChatbotScreen> {
   final List<ChatMessage> _messages = [];
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scroll = ScrollController();
 
-  void _sendMessage(String text) {
-    if (text.trim().isEmpty) return;
-
+  void _sendMessage() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
     setState(() {
-      _messages.add(ChatMessage(message: text, isUser: true));
+      _messages.add(ChatMessage(text: text, isUser: true));
     });
-
     _controller.clear();
+    _scrollToEnd();
+    // No mock AI here; when backend is ready, call API and append response.
+  }
 
-    // Mock bot response for now
-    Future.delayed(Duration(milliseconds: 500), () {
-      setState(() {
-        _messages.add(ChatMessage(
-          message: "This is a sample dental advice response.",
-          isUser: false,
-        ));
-      });
+  void _scrollToEnd() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scroll.hasClients) {
+        _scroll.animateTo(
+          _scroll.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      }
     });
   }
 
-  Widget _buildMessage(ChatMessage msg) {
+  Widget _bubble(ChatMessage m) {
     return Align(
-      alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: m.isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        padding: EdgeInsets.all(12),
+        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: msg.isUser ? Colors.teal[200] : Colors.grey[300],
+          color: m.isUser ? Colors.teal.shade100 : Colors.grey.shade200,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Text(msg.message),
+        child: Text(m.text),
       ),
     );
   }
@@ -48,39 +54,42 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Dental Chatbot"),
-        backgroundColor: Colors.teal,
-      ),
+      appBar: AppBar(title: const Text('Dental Chatbot')),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _scroll,
               itemCount: _messages.length,
-              itemBuilder: (context, index) => _buildMessage(_messages[index]),
+              itemBuilder: (_, i) => _bubble(_messages[i]),
             ),
           ),
-          Divider(height: 1),
+          const Divider(height: 1),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: InputDecoration.collapsed(
-                      hintText: "Ask me about dental health...",
+                    minLines: 1,
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      hintText: 'Ask about dental health…',
+                      border: OutlineInputBorder(),
+                      isDense: true,
                     ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 IconButton(
-                  icon: Icon(Icons.send, color: Colors.teal),
-                  onPressed: () => _sendMessage(_controller.text),
+                  onPressed: _sendMessage,
+                  icon: const Icon(Icons.send, color: Colors.teal),
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

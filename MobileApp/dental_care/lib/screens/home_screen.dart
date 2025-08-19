@@ -1,70 +1,52 @@
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> menuItems = [
-    {
-      'title': 'Upload Normal Image',
-      'icon': Icons.camera_alt,
-      'route': '/upload_normal'
-    },
-    {
-      'title': 'Upload X-ray Image',
-      'icon': Icons.medical_services,
-      'route': '/upload_xray'
-    },
-    {'title': 'Chatbot', 'icon': Icons.chat, 'route': '/chatbot'},
-    {
-      'title': 'Tips & Recommendations',
-      'icon': Icons.lightbulb,
-      'route': '/tips'
-    },
-    {'title': 'Profile', 'icon': Icons.person, 'route': '/profile'},
-  ];
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final items = [
+      ('Upload Normal Image', Icons.camera_alt, '/upload_normal'),
+      ('Upload X-ray Image', Icons.medical_services, '/upload_xray'),
+      ('Chatbot', Icons.chat, '/chatbot'),
+      ('Tips & Recommendations', Icons.lightbulb, '/tips'),
+      ('Profile', Icons.person, '/profile'),
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Dental Care Home"),
-        centerTitle: true,
+        title: const Text('Dental Care Home'),
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () {
-              Navigator.pushReplacementNamed(context, '/login');
-            },
+            icon: const Icon(Icons.logout),
+            onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
           )
         ],
       ),
       body: GridView.builder(
-        padding: EdgeInsets.all(16),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 2 items per row
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-        ),
-        itemCount: menuItems.length,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, menuItems[index]['route']);
-            },
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, crossAxisSpacing: 16, mainAxisSpacing: 16),
+        itemCount: items.length,
+        itemBuilder: (_, i) {
+          final item = items[i];
+          return InkWell(
+            onTap: () => Navigator.pushNamed(context, item.$3),
             child: Card(
-              elevation: 4,
+              elevation: 2,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(menuItems[index]['icon'], size: 50, color: Colors.teal),
-                  SizedBox(height: 10),
-                  Text(
-                    menuItems[index]['title'],
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ],
+                  borderRadius: BorderRadius.circular(12)),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(item.$2, size: 44, color: Colors.teal),
+                    const SizedBox(height: 10),
+                    Text(item.$1,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
             ),
           );
