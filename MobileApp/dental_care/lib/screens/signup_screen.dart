@@ -1,75 +1,66 @@
 import 'package:flutter/material.dart';
+import '../widgets/input_field.dart';
+import '../widgets/primary_button.dart';
 
 class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
   @override
-  _SignupScreenState createState() => _SignupScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final _formKey = GlobalKey<FormState>();
-  String name = '';
-  String email = '';
-  String password = '';
+  final formKey = GlobalKey<FormState>();
+  final nameCtrl = TextEditingController();
+  final emailCtrl = TextEditingController();
+  final passCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    nameCtrl.dispose();
+    emailCtrl.dispose();
+    passCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Sign Up"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Sign Up')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: "Name",
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value!.isEmpty ? "Please enter your name" : null,
-                onChanged: (value) => setState(() => name = value),
-              ),
-              SizedBox(height: 20),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value!.isEmpty ? "Please enter your email" : null,
-                onChanged: (value) => setState(() => email = value),
-              ),
-              SizedBox(height: 20),
-              TextFormField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value!.isEmpty ? "Please enter a password" : null,
-                onChanged: (value) => setState(() => password = value),
-              ),
-              SizedBox(height: 30),
-              ElevatedButton(
+              InputField(
+                  label: 'Name',
+                  controller: nameCtrl,
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Enter name' : null),
+              const SizedBox(height: 12),
+              InputField(
+                  label: 'Email',
+                  controller: emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Enter email' : null),
+              const SizedBox(height: 12),
+              InputField(
+                  label: 'Password',
+                  controller: passCtrl,
+                  obscure: true,
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Enter password' : null),
+              const SizedBox(height: 20),
+              PrimaryButton(
+                label: 'Create Account',
                 onPressed: () {
-                  if (_formKey.currentState!.validate()) {
+                  if (formKey.currentState!.validate()) {
                     Navigator.pushReplacementNamed(context, '/login');
                   }
                 },
-                child: Text("Sign Up"),
-              ),
-              SizedBox(height: 10),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("Already have an account? Login"),
               ),
             ],
           ),

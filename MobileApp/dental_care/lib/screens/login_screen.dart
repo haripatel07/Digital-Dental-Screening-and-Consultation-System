@@ -1,65 +1,65 @@
 import 'package:flutter/material.dart';
+import '../widgets/input_field.dart';
+import '../widgets/primary_button.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  String email = '';
-  String password = '';
+  final formKey = GlobalKey<FormState>();
+  final emailCtrl = TextEditingController();
+  final passCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    emailCtrl.dispose();
+    passCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Login"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Login')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value!.isEmpty ? "Please enter your email" : null,
-                onChanged: (value) => setState(() => email = value),
+              InputField(
+                label: 'Email',
+                controller: emailCtrl,
+                keyboardType: TextInputType.emailAddress,
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'Enter email' : null,
               ),
-              SizedBox(height: 20),
-              TextFormField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value!.isEmpty ? "Please enter your password" : null,
-                onChanged: (value) => setState(() => password = value),
+              const SizedBox(height: 12),
+              InputField(
+                label: 'Password',
+                controller: passCtrl,
+                obscure: true,
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'Enter password' : null,
               ),
-              SizedBox(height: 30),
-              ElevatedButton(
+              const SizedBox(height: 20),
+              PrimaryButton(
+                label: 'Login',
                 onPressed: () {
-                  if (_formKey.currentState!.validate()) {
+                  if (formKey.currentState!.validate()) {
                     Navigator.pushReplacementNamed(context, '/home');
                   }
                 },
-                child: Text("Login"),
               ),
-              SizedBox(height: 10),
               TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/signup');
-                },
-                child: Text("Don't have an account? Sign up"),
-              ),
+                onPressed: () => Navigator.pushNamed(context, '/signup'),
+                child: const Text("Don't have an account? Sign up"),
+              )
             ],
           ),
         ),
