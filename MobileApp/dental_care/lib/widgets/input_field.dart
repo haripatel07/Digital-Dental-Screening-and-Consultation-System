@@ -1,30 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class InputField extends StatelessWidget {
-  final String label;
+  final String hintText;
   final TextEditingController controller;
-  final bool obscure;
-  final TextInputType keyboardType;
-  final String? Function(String?)? validator;
+  final bool obscureText;
 
   const InputField({
-    super.key,
-    required this.label,
+    Key? key,
+    required this.hintText,
     required this.controller,
-    this.obscure = false,
-    this.keyboardType = TextInputType.text,
-    this.validator,
-  });
+    this.obscureText = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
+    return TextField(
       controller: controller,
-      obscureText: obscure,
-      keyboardType: keyboardType,
-      decoration:
-          InputDecoration(labelText: label, border: const OutlineInputBorder()),
-      validator: validator,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: GoogleFonts.poppins(fontSize: 14),
+        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade100,
+      ),
     );
   }
 }

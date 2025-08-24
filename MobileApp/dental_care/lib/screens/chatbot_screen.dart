@@ -12,8 +12,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   final List<Map<String, String>> _messages = [];
   bool _isLoading = false;
 
-  // Replace with your FastAPI server URL
-  final String apiUrl = "http://127.0.0.1:8000/chatbot";
+  // Replace with your FastAPI endpoint
+  final String apiUrl = "http://127.0.0.1:8000/chatbot"; 
+  // If testing on mobile emulator, use http://10.0.2.2:8000/chatbot
 
   Future<void> sendMessage(String message) async {
     setState(() {
@@ -35,27 +36,27 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         });
       } else {
         setState(() {
-          _messages.add({
-            "sender": "bot",
-            "text": "Error: Unable to connect to chatbot."
-          });
+          _messages.add({"sender": "bot", "text": "Error: Unable to connect to chatbot."});
         });
       }
     } catch (e) {
       setState(() {
         _messages.add({"sender": "bot", "text": "Error: $e"});
       });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Dental Chatbot")),
+      appBar: AppBar(
+        title: Text("Dental Chatbot"),
+        backgroundColor: Colors.teal,
+      ),
       body: Column(
         children: [
           Expanded(
@@ -64,18 +65,15 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final msg = _messages[index];
+                final isUser = msg["sender"] == "user";
                 return Align(
-                  alignment: msg["sender"] == "user"
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
+                  alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 4),
-                    padding: EdgeInsets.all(10),
+                    margin: EdgeInsets.symmetric(vertical: 5),
+                    padding: EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: msg["sender"] == "user"
-                          ? Colors.teal.shade200
-                          : Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(12),
+                      color: isUser ? Colors.teal[100] : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(msg["text"] ?? ""),
                   ),
@@ -83,29 +81,34 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               },
             ),
           ),
-          if (_isLoading) CircularProgressIndicator(),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          if (_isLoading)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(color: Colors.teal),
+            ),
+          Divider(height: 1),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            color: Colors.white,
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _controller,
                     decoration: InputDecoration(
-                      hintText: "Ask about dental care...",
-                      border: OutlineInputBorder(),
+                      hintText: "Ask me about dental health...",
+                      border: InputBorder.none,
                     ),
                   ),
                 ),
-                SizedBox(width: 8),
-                ElevatedButton(
+                IconButton(
+                  icon: Icon(Icons.send, color: Colors.teal),
                   onPressed: () {
-                    if (_controller.text.trim().isNotEmpty) {
-                      sendMessage(_controller.text.trim());
+                    if (_controller.text.isNotEmpty) {
+                      sendMessage(_controller.text);
                       _controller.clear();
                     }
                   },
-                  child: Icon(Icons.send),
                 ),
               ],
             ),
