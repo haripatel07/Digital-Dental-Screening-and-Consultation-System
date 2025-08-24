@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
+  static const routeName = '/profile';
   const ProfileScreen({super.key});
 
   @override
@@ -14,40 +15,42 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          // Gradient header
+          // Gradient Header
           Container(
             width: double.infinity,
             padding: const EdgeInsets.only(top: 60, bottom: 24),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.teal, Colors.tealAccent],
+                colors: [
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.secondary
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(30),
+              ),
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 CircleAvatar(
                   radius: 45,
                   backgroundColor: Colors.white,
-                  child: Icon(Icons.person, size: 50, color: Colors.teal),
+                  child: Icon(Icons.person,
+                      size: 50, color: Theme.of(context).colorScheme.primary),
                 ),
-                SizedBox(height: 12),
-                Text(
+                const SizedBox(height: 12),
+                const Text(
                   'User Name',
                   style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
-                SizedBox(height: 4),
-                Text(
-                  'user@example.com',
-                  style: TextStyle(color: Colors.white70),
-                ),
+                const SizedBox(height: 4),
+                const Text('user@example.com',
+                    style: TextStyle(color: Colors.white70)),
               ],
             ),
           ),
@@ -59,78 +62,76 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Clinics header
                   const Row(
                     children: [
                       Icon(Icons.local_hospital, color: Colors.teal),
                       SizedBox(width: 8),
-                      Text(
-                        'Nearby Clinics',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600),
-                      ),
+                      Text("Nearby Clinics",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w600)),
                     ],
                   ),
                   const SizedBox(height: 12),
 
-                  // Clinics list
-                  ...clinics.map(
-                    (c) => Card(
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                      child: ListTile(
-                        leading: const Icon(Icons.location_on,
-                            color: Colors.teal, size: 30),
-                        title: Text(c['name'] as String,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w600)),
-                        subtitle: Text(
-                          '⭐ ${(c['rating'] as double).toStringAsFixed(1)} • ${c['distance']}',
-                          style: const TextStyle(color: Colors.grey),
+                  //  Clinics List
+                  ...clinics.map((c) => Card(
+                        elevation: 2,
+                        margin: const EdgeInsets.symmetric(vertical: 6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
                         ),
-                        trailing: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.teal,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        child: ListTile(
+                          leading: Icon(Icons.location_on,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 30),
+                          title: Text(c['name'] as String,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w600)),
+                          subtitle: Text(
+                            ' ${(c['rating'] as double).toStringAsFixed(1)} • ${c['distance']}',
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                          trailing: SizedBox(
+                            width: 100,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                              ),
+                              onPressed: () {},
+                              child: const Text("Contact"),
                             ),
                           ),
-                          onPressed: () {
-                            // Later: Maps / Call / Booking
-                          },
-                          child: const Text('Contact'),
                         ),
-                      ),
-                    ),
-                  ),
+                      )),
 
                   const SizedBox(height: 20),
 
-                  // Doctor connect
+                  //  Doctor Connect
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.teal, width: 1.5),
+                        side: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 1.5),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
-                      onPressed: () {
-                        // Later: chat or video consultation
-                      },
-                      icon: const Icon(Icons.video_call, color: Colors.teal),
-                      label: const Text(
-                        'Connect with a Doctor',
-                        style: TextStyle(color: Colors.teal),
-                      ),
+                      onPressed: () {},
+                      icon: Icon(Icons.video_call,
+                          color: Theme.of(context).colorScheme.primary),
+                      label: Text("Connect with a Doctor",
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary)),
                     ),
                   ),
-
                   const SizedBox(height: 12),
 
-                  // Logout
+                  //  Logout
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -143,10 +144,8 @@ class ProfileScreen extends StatelessWidget {
                       onPressed: () =>
                           Navigator.pushReplacementNamed(context, '/login'),
                       icon: const Icon(Icons.logout, color: Colors.white),
-                      label: const Text(
-                        'Logout',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      label: const Text("Logout",
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],

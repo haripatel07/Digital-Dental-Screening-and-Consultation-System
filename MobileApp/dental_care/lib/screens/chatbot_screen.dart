@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ChatbotScreen extends StatefulWidget {
+  static const routeName = '/chatbot';
   const ChatbotScreen({super.key});
 
   @override
@@ -14,7 +15,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   final List<Map<String, String>> _messages = [];
   bool _isLoading = false;
 
-  // Replace with backend API
   final String apiUrl = "http://10.0.2.2:8000/chatbot";
 
   final List<String> quickSuggestions = [
@@ -25,6 +25,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   ];
 
   Future<void> sendMessage(String message) async {
+    if (!mounted) return;
+
     setState(() {
       _messages.add({"sender": "user", "text": message});
       _isLoading = true;
@@ -37,27 +39,32 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         body: json.encode({"message": message}),
       );
 
+      if (!mounted) return;
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          _messages.add({"sender": "bot", "text": data["reply"]});
+          _messages.add({"sender": "bot", "text": data["reply"] ?? "..."});
         });
       } else {
         setState(() {
           _messages.add({
             "sender": "bot",
-            "text": "⚠️ Unable to connect to chatbot. Try again later."
+            "text": "Unable to connect to chatbot. Try again later."
           });
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _messages.add({"sender": "bot", "text": "⚠️ Error: ${e.toString()}"});
+        _messages.add({"sender": "bot", "text": " Error: ${e.toString()}"});
       });
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -68,8 +75,11 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 5),
         padding: const EdgeInsets.all(12),
+        constraints: const BoxConstraints(maxWidth: 280),
         decoration: BoxDecoration(
-          color: isUser ? Colors.teal.shade400 : Colors.grey.shade200,
+          color: isUser
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.surfaceVariant,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(12),
             topRight: const Radius.circular(12),
@@ -80,7 +90,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         child: Text(
           msg["text"] ?? "",
           style: TextStyle(
-            color: isUser ? Colors.white : Colors.black87,
+            color: isUser
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.onSurface,
             fontSize: 15,
           ),
         ),
@@ -90,7 +102,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
   Widget _buildQuickSuggestions() {
     return SizedBox(
-      height: 40,
+      height: 42,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: quickSuggestions.map((q) {
@@ -98,10 +110,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: ActionChip(
               label: Text(q, style: const TextStyle(fontSize: 13)),
-              backgroundColor: Colors.teal.shade100,
-              onPressed: () {
-                sendMessage(q);
-              },
+              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+              onPressed: () => sendMessage(q),
             ),
           );
         }).toList(),
@@ -110,11 +120,15 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Dental Chatbot"),
-      ),
+      appBar: AppBar(title: const Text("Dental Chatbot")),
       body: Column(
         children: [
           Expanded(
@@ -127,14 +141,13 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           if (_isLoading)
             const Padding(
               padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(color: Colors.teal),
+              child: CircularProgressIndicator(),
             ),
           const Divider(height: 1),
-          _buildQuickSuggestions(), // ✅ Quick question buttons
+          _buildQuickSuggestions(),
           SafeArea(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              color: Colors.white,
               child: Row(
                 children: [
                   Expanded(
@@ -154,7 +167,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.send, color: Colors.teal),
+                    icon: Icon(Icons.send,
+                        color: Theme.of(context).colorScheme.primary),
                     onPressed: () {
                       if (_controller.text.isNotEmpty) {
                         sendMessage(_controller.text);
