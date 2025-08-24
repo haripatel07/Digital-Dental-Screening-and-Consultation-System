@@ -1,91 +1,111 @@
 import 'package:flutter/material.dart';
-import '../models/chat_message.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ChatbotScreen extends StatefulWidget {
-  const ChatbotScreen({super.key});
-
   @override
-  State<ChatbotScreen> createState() => _ChatbotScreenState();
+  _ChatbotScreenState createState() => _ChatbotScreenState();
 }
 
 class _ChatbotScreenState extends State<ChatbotScreen> {
-  final List<ChatMessage> _messages = [];
   final TextEditingController _controller = TextEditingController();
-  final ScrollController _scroll = ScrollController();
+  final List<Map<String, String>> _messages = [];
+  bool _isLoading = false;
 
-  void _sendMessage() {
-    final text = _controller.text.trim();
-    if (text.isEmpty) return;
+  // Replace with your FastAPI server URL
+  final String apiUrl = "http://127.0.0.1:8000/chatbot";
+
+  Future<void> sendMessage(String message) async {
     setState(() {
-      _messages.add(ChatMessage(text: text, isUser: true));
+      _messages.add({"sender": "user", "text": message});
+      _isLoading = true;
     });
-    _controller.clear();
-    _scrollToEnd();
-    // No mock AI here; when backend is ready, call API and append response.
-  }
 
-  void _scrollToEnd() {
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (_scroll.hasClients) {
-        _scroll.animateTo(
-          _scroll.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-        );
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({"message": message}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _messages.add({"sender": "bot", "text": data["reply"]});
+        });
+      } else {
+        setState(() {
+          _messages.add({
+            "sender": "bot",
+            "text": "Error: Unable to connect to chatbot."
+          });
+        });
       }
-    });
-  }
+    } catch (e) {
+      setState(() {
+        _messages.add({"sender": "bot", "text": "Error: $e"});
+      });
+    }
 
-  Widget _bubble(ChatMessage m) {
-    return Align(
-      alignment: m.isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: m.isUser ? Colors.teal.shade100 : Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(m.text),
-      ),
-    );
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Dental Chatbot')),
+      appBar: AppBar(title: Text("Dental Chatbot")),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
-              controller: _scroll,
+              padding: EdgeInsets.all(10),
               itemCount: _messages.length,
-              itemBuilder: (_, i) => _bubble(_messages[i]),
+              itemBuilder: (context, index) {
+                final msg = _messages[index];
+                return Align(
+                  alignment: msg["sender"] == "user"
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                  child: Container(
+                    margin: EdgeInsets.symmetric(vertical: 4),
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: msg["sender"] == "user"
+                          ? Colors.teal.shade200
+                          : Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(msg["text"] ?? ""),
+                  ),
+                );
+              },
             ),
           ),
-          const Divider(height: 1),
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          if (_isLoading) CircularProgressIndicator(),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    minLines: 1,
-                    maxLines: 4,
-                    decoration: const InputDecoration(
-                      hintText: 'Ask about dental health…',
+                    decoration: InputDecoration(
+                      hintText: "Ask about dental care...",
                       border: OutlineInputBorder(),
-                      isDense: true,
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _sendMessage,
-                  icon: const Icon(Icons.send, color: Colors.teal),
+                SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_controller.text.trim().isNotEmpty) {
+                      sendMessage(_controller.text.trim());
+                      _controller.clear();
+                    }
+                  },
+                  child: Icon(Icons.send),
                 ),
               ],
             ),
