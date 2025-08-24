@@ -26,43 +26,72 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign Up')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              InputField(
-                  label: 'Name',
+      appBar: AppBar(
+        title: const Text('Create Account'),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  "Join Dental Care",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                InputField(
+                  label: 'Full Name',
                   controller: nameCtrl,
                   validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Enter name' : null),
-              const SizedBox(height: 12),
-              InputField(
+                      (v == null || v.isEmpty) ? 'Enter your name' : null,
+                ),
+                const SizedBox(height: 14),
+
+                InputField(
                   label: 'Email',
                   controller: emailCtrl,
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Enter email' : null),
-              const SizedBox(height: 12),
-              InputField(
+                      (v == null || v.isEmpty) ? 'Enter your email' : null,
+                ),
+                const SizedBox(height: 14),
+
+                InputField(
                   label: 'Password',
                   controller: passCtrl,
                   obscure: true,
                   validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Enter password' : null),
-              const SizedBox(height: 20),
-              PrimaryButton(
-                label: 'Create Account',
-                onPressed: () {
-                  if (formKey.currentState!.validate()) {
-                    Navigator.pushReplacementNamed(context, '/login');
-                  }
-                },
-              ),
-            ],
+                      (v == null || v.isEmpty) ? 'Enter your password' : null,
+                ),
+
+                const SizedBox(height: 28),
+                PrimaryButton(
+                  label: 'Sign Up',
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      Navigator.pushReplacementNamed(context, '/login');
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Already have account
+                TextButton(
+                  onPressed: () =>
+                      Navigator.pushReplacementNamed(context, '/login'),
+                  child: const Text("Already have an account? Log in"),
+                ),
+              ],
+            ),
           ),
         ),
       ),
