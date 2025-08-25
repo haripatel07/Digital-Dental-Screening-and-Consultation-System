@@ -15,7 +15,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   final List<Map<String, String>> _messages = [];
   bool _isLoading = false;
 
-  final String apiUrl = "http://10.0.2.2:8000/chatbot";
+  final String apiUrl = "https://web-production-cf49.up.railway.app/chatbot";
 
   final List<String> quickSuggestions = [
     "How to prevent cavities?",

@@ -92,7 +92,7 @@ class ProfileScreen extends StatelessWidget {
                             style: const TextStyle(color: Colors.grey),
                           ),
                           trailing: SizedBox(
-                            width: 100,
+                            width: 110,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:

@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Text(
-                        "Welcome Back 👋",
+                        "Welcome Back",
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
