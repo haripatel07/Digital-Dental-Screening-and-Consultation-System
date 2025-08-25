@@ -3,6 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ChatbotScreen extends StatefulWidget {
+  static const routeName = '/chatbot';
+  const ChatbotScreen({super.key});
+
   @override
   _ChatbotScreenState createState() => _ChatbotScreenState();
 }
@@ -12,10 +15,18 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   final List<Map<String, String>> _messages = [];
   bool _isLoading = false;
 
-  // Replace with your FastAPI server URL
-  final String apiUrl = "http://127.0.0.1:8000/chatbot";
+  final String apiUrl = "http://10.0.2.2:8000/chatbot";
+
+  final List<String> quickSuggestions = [
+    "How to prevent cavities?",
+    "What causes gum disease?",
+    "How do I whiten teeth?",
+    "What to do for toothache?",
+  ];
 
   Future<void> sendMessage(String message) async {
+    if (!mounted) return;
+
     setState(() {
       _messages.add({"sender": "user", "text": message});
       _isLoading = true;
@@ -28,86 +39,145 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         body: json.encode({"message": message}),
       );
 
+      if (!mounted) return;
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          _messages.add({"sender": "bot", "text": data["reply"]});
+          _messages.add({"sender": "bot", "text": data["reply"] ?? "..."});
         });
       } else {
         setState(() {
           _messages.add({
             "sender": "bot",
-            "text": "Error: Unable to connect to chatbot."
+            "text": "Unable to connect to chatbot. Try again later."
           });
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _messages.add({"sender": "bot", "text": "Error: $e"});
+        _messages.add({"sender": "bot", "text": " Error: ${e.toString()}"});
       });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
+  }
 
-    setState(() {
-      _isLoading = false;
-    });
+  Widget _buildMessage(Map<String, String> msg) {
+    final isUser = msg["sender"] == "user";
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 5),
+        padding: const EdgeInsets.all(12),
+        constraints: const BoxConstraints(maxWidth: 280),
+        decoration: BoxDecoration(
+          color: isUser
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.surfaceVariant,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(12),
+            topRight: const Radius.circular(12),
+            bottomLeft: isUser ? const Radius.circular(12) : Radius.zero,
+            bottomRight: isUser ? Radius.zero : const Radius.circular(12),
+          ),
+        ),
+        child: Text(
+          msg["text"] ?? "",
+          style: TextStyle(
+            color: isUser
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.onSurface,
+            fontSize: 15,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickSuggestions() {
+    return SizedBox(
+      height: 42,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: quickSuggestions.map((q) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: ActionChip(
+              label: Text(q, style: const TextStyle(fontSize: 13)),
+              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+              onPressed: () => sendMessage(q),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Dental Chatbot")),
+      appBar: AppBar(title: const Text("Dental Chatbot")),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(12),
               itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final msg = _messages[index];
-                return Align(
-                  alignment: msg["sender"] == "user"
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 4),
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: msg["sender"] == "user"
-                          ? Colors.teal.shade200
-                          : Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(msg["text"] ?? ""),
-                  ),
-                );
-              },
+              itemBuilder: (context, index) => _buildMessage(_messages[index]),
             ),
           ),
-          if (_isLoading) CircularProgressIndicator(),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: "Ask about dental care...",
-                      border: OutlineInputBorder(),
+          if (_isLoading)
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(),
+            ),
+          const Divider(height: 1),
+          _buildQuickSuggestions(),
+          SafeArea(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (value) {
+                        if (value.isNotEmpty) {
+                          sendMessage(value);
+                          _controller.clear();
+                        }
+                      },
+                      decoration: const InputDecoration(
+                        hintText: "Ask me about dental health...",
+                        border: InputBorder.none,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_controller.text.trim().isNotEmpty) {
-                      sendMessage(_controller.text.trim());
-                      _controller.clear();
-                    }
-                  },
-                  child: Icon(Icons.send),
-                ),
-              ],
+                  IconButton(
+                    icon: Icon(Icons.send,
+                        color: Theme.of(context).colorScheme.primary),
+                    onPressed: () {
+                      if (_controller.text.isNotEmpty) {
+                        sendMessage(_controller.text);
+                        _controller.clear();
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ],
