@@ -1,5 +1,6 @@
 import { Box, Typography, Paper, Button, List, ListItem, ListItemText } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import NavBar from "../components/Navbar";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -11,40 +12,46 @@ export default function Profile() {
   ];
 
   return (
-    <Box p={3}>
-      <Paper sx={{ p: 3, borderRadius: 3, textAlign: "center", mb: 3 }}>
-        <Typography variant="h6">User Name</Typography>
-        <Typography color="text.secondary">user@example.com</Typography>
-      </Paper>
+    <Box>
+      <NavBar />
+      <Box p={3}>
+        <Paper sx={{ p: 3, borderRadius: 3, textAlign: "center", mb: 3 }}>
+          <Typography variant="h6">User Name</Typography>
+          <Typography color="text.secondary">user@example.com</Typography>
+        </Paper>
 
-      <Typography variant="h6" mb={1} color="primary">
-        Nearby Clinics
-      </Typography>
-      <List>
-        {clinics.map((c, i) => (
-          <ListItem
-            key={i}
-            sx={{ border: "1px solid #ddd", borderRadius: 2, mb: 1 }}
-            secondaryAction={<Button variant="contained">Contact</Button>}
-          >
-            <ListItemText primary={c.name} secondary={`⭐ ${c.rating} • ${c.distance}`} />
-          </ListItem>
-        ))}
-      </List>
+        <Typography variant="h6" mb={1} color="primary">
+          Nearby Clinics
+        </Typography>
+        <List>
+          {clinics.map((c, i) => (
+            <ListItem
+              key={i}
+              sx={{ border: "1px solid #ddd", borderRadius: 2, mb: 1 }}
+              secondaryAction={<Button variant="contained">Contact</Button>}
+            >
+              <ListItemText
+                primary={c.name}
+                secondary={`⭐ ${c.rating} • ${c.distance}`}
+              />
+            </ListItem>
+          ))}
+        </List>
 
-      <Button variant="outlined" fullWidth sx={{ mt: 2 }}>
-        Connect with a Doctor
-      </Button>
+        <Button variant="outlined" fullWidth sx={{ mt: 2 }}>
+          Connect with a Doctor
+        </Button>
 
-      <Button
-        variant="contained"
-        color="error"
-        fullWidth
-        sx={{ mt: 2 }}
-        onClick={() => navigate("/")}
-      >
-        Logout
-      </Button>
+        <Button
+          variant="contained"
+          color="error"
+          fullWidth
+          sx={{ mt: 2 }}
+          onClick={() => navigate("/")}
+        >
+          Logout
+        </Button>
+      </Box>
     </Box>
   );
 }
