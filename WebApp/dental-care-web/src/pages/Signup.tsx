@@ -6,8 +6,8 @@ export default function Signup() {
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" height="100vh" bgcolor="grey.100">
-      <Paper sx={{ p: 4, width: 350, borderRadius: 3, textAlign: "center" }}>
-        <Typography variant="h5" mb={2} color="primary">
+      <Paper sx={{ p: 5, width: 380, borderRadius: 3, boxShadow: 3 }}>
+        <Typography variant="h5" mb={3} fontWeight="bold" color="primary" textAlign="center">
           Create Account
         </Typography>
 
@@ -15,11 +15,11 @@ export default function Signup() {
         <TextField label="Email" type="email" fullWidth margin="normal" />
         <TextField label="Password" type="password" fullWidth margin="normal" />
 
-        <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={() => navigate("/home")}>
+        <Button variant="contained" fullWidth sx={{ mt: 3 }} onClick={() => navigate("/home")}>
           Sign Up
         </Button>
 
-        <Button variant="text" fullWidth sx={{ mt: 1 }} onClick={() => navigate("/")}>
+        <Button variant="text" fullWidth sx={{ mt: 2 }} onClick={() => navigate("/")}>
           Already have an account? Login
         </Button>
       </Paper>
