@@ -9,14 +9,10 @@ export default function ChatMessage({ sender, text }: ChatMessageProps) {
   const isUser = sender === "user";
 
   return (
-    <Box
-      display="flex"
-      justifyContent={isUser ? "flex-end" : "flex-start"}
-      mb={1}
-    >
+    <Box display="flex" justifyContent={isUser ? "flex-end" : "flex-start"} mb={1}>
       <Box
         sx={{
-          bgcolor: isUser ? "teal.main" : "grey.200",
+          bgcolor: isUser ? "primary.main" : "grey.200",
           color: isUser ? "white" : "black",
           px: 2,
           py: 1,
