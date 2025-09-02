@@ -2,3 +2,5 @@
 "Models/final_dental_xray_model.pth" 
 
 __pycache__/
+
+.vscode/
