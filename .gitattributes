@@ -1,3 +1,21 @@
 *.pth filter=lfs diff=lfs merge=lfs -text
 *.ipynb linguist-detectable=false
 *.html linguist-detectable=false
+
+# Exclude CMake / C++ auto-generated build files
+CMakeLists.txt linguist-vendored
+*.cmake linguist-vendored
+*.cpp linguist-vendored
+*.cc linguist-vendored
+*.cxx linguist-vendored
+*.c linguist-vendored
+*.h linguist-vendored
+
+# Exclude iOS/Swift auto-generated files
+*.swift linguist-vendored
+
+# Ensure our main languages are properly counted
+*.dart linguist-detectable=true
+*.ts linguist-detectable=true
+*.tsx linguist-detectable=true
+*.py linguist-detectable=true
