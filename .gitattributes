@@ -2,6 +2,10 @@
 *.ipynb linguist-detectable=false
 *.html linguist-detectable=false
 
+# Exclude model files and binaries
+*.pth linguist-vendored
+*.h5 linguist-vendored
+*.onnx linguist-vendored
 # Exclude CMake / C++ auto-generated build files
 CMakeLists.txt linguist-vendored
 *.cmake linguist-vendored
