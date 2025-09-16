@@ -17,6 +17,5 @@ def test_xray(image_path):
     print("X-ray Image Prediction:", response.json())
 
 if __name__ == "__main__":
-    # ✅ Replace with your test image paths
     test_normal("sample_data/normal1.jpg")
     test_xray("sample_data/xray1.jpg")

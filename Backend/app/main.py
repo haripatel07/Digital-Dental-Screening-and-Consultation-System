@@ -1,8 +1,6 @@
 from fastapi import FastAPI
-from app.routers import normal, xray
+from app.routers import normal, xray, clinics
 from fastapi.middleware.cors import CORSMiddleware
-
-
 
 app = FastAPI(
     title="Dental Screening API",
@@ -12,7 +10,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # later restrict to your app domains
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,6 +20,7 @@ app.add_middleware(
 # Routers
 app.include_router(normal.router, prefix="/predict", tags=["Normal Image"])
 app.include_router(xray.router, prefix="/predict", tags=["X-ray Image"])
+app.include_router(clinics.router, prefix="/clinics", tags=["Clinics"])
 
 @app.get("/")
 def root():
