@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:dental_care/services/api_service.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
 
 class UploadNormalScreen extends StatefulWidget {
   const UploadNormalScreen({super.key});
@@ -12,39 +15,100 @@ class UploadNormalScreen extends StatefulWidget {
 class _UploadNormalScreenState extends State<UploadNormalScreen> {
   final ImagePicker _picker = ImagePicker();
   File? _imageFile;
+  Uint8List? _imageBytes; // For web
+  bool _loading = false;
+  String? _error;
+  final ApiService _apiService = ApiService();
 
   Future<void> _pickFromGallery() async {
     final picked = await _picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) setState(() => _imageFile = File(picked.path));
+    if (picked != null) {
+      if (kIsWeb) {
+        final bytes = await picked.readAsBytes();
+        setState(() {
+          _imageBytes = bytes;
+          _imageFile = null;
+        });
+      } else {
+        setState(() {
+          _imageFile = File(picked.path);
+          _imageBytes = null;
+        });
+      }
+    }
   }
 
   Future<void> _pickFromCamera() async {
     final picked = await _picker.pickImage(source: ImageSource.camera);
-    if (picked != null) setState(() => _imageFile = File(picked.path));
+    if (picked != null) {
+      if (kIsWeb) {
+        final bytes = await picked.readAsBytes();
+        setState(() {
+          _imageBytes = bytes;
+          _imageFile = null;
+        });
+      } else {
+        setState(() {
+          _imageFile = File(picked.path);
+          _imageBytes = null;
+        });
+      }
+    }
   }
 
-  void _goToResult() {
-    Navigator.pushNamed(
-      context,
-      '/result',
-      arguments: {
-        'imagePath': _imageFile?.path,
-        'disease': null, // Backend will populate later
-        'confidence': null,
-        'recommendation': null,
-        'source': 'normal',
-      },
-    );
+  Future<void> _analyzeAndGoToResult() async {
+    if (_imageFile == null && _imageBytes == null) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      Map<String, dynamic> result;
+      if (kIsWeb && _imageBytes != null) {
+        result = await _apiService.predictNormalWeb(_imageBytes!);
+      } else if (_imageFile != null) {
+        result = await _apiService.predictNormal(_imageFile!.path);
+      } else {
+        throw Exception('No image selected');
+      }
+      Navigator.pushNamed(
+        context,
+        '/result',
+        arguments: {
+          'imagePath': _imageFile != null ? _imageFile!.path : '',
+          'imageBytes': kIsWeb ? _imageBytes : null,
+          'disease': result['prediction'],
+          'confidence': result['confidence'],
+          'recommendation': result['recommendation'],
+          'source': 'normal',
+        },
+      );
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to analyze image. Please try again.';
+      });
+    } finally {
+      setState(() {
+        _loading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final canAnalyze = _imageFile != null;
+    final canAnalyze =
+        (kIsWeb ? _imageBytes != null : _imageFile != null) && !_loading;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Upload Normal Image')),
       body: Column(
         children: [
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(_error!, style: TextStyle(color: Colors.red)),
+            ),
+          if (_loading) const LinearProgressIndicator(),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -59,17 +123,31 @@ class _UploadNormalScreenState extends State<UploadNormalScreen> {
                         borderRadius: BorderRadius.circular(12),
                         color: Colors.grey.shade100,
                       ),
-                      child: _imageFile == null
-                          ? const Center(
-                              child: Text(
-                                'No image selected',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            )
-                          : ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.file(_imageFile!, fit: BoxFit.cover),
-                            ),
+                      child: kIsWeb
+                          ? (_imageBytes == null
+                              ? const Center(
+                                  child: Text(
+                                    'No image selected',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                )
+                              : ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.memory(_imageBytes!,
+                                      fit: BoxFit.cover),
+                                ))
+                          : (_imageFile == null
+                              ? const Center(
+                                  child: Text(
+                                    'No image selected',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                )
+                              : ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.file(_imageFile!,
+                                      fit: BoxFit.cover),
+                                )),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -107,7 +185,7 @@ class _UploadNormalScreenState extends State<UploadNormalScreen> {
                 width: double.infinity,
                 height: 48,
                 child: FilledButton.icon(
-                  onPressed: canAnalyze ? _goToResult : null,
+                  onPressed: canAnalyze ? _analyzeAndGoToResult : null,
                   icon: const Icon(Icons.analytics),
                   label: const Text('Analyze'),
                 ),
