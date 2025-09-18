@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dental_care/services/api_service.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   static const routeName = '/profile';
@@ -13,15 +15,16 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final ApiService _apiService = ApiService();
   List<Map<String, dynamic>> _clinics = [];
-  bool _loading = true;
+  bool _loading = false;
   String? _error;
+  String? _city;
   Position? _position;
   bool _disposed = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchLocationAndClinics();
+    _detectLocationAndPromptCity();
   }
 
   @override
@@ -30,11 +33,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchLocationAndClinics() async {
+  Future<void> _detectLocationAndPromptCity() async {
     setState(() {
       _loading = true;
       _error = null;
     });
+    String? cityName;
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
@@ -51,12 +55,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
         throw Exception('Location permissions are permanently denied.');
       }
       final pos = await Geolocator.getCurrentPosition();
-      if (_disposed) return;
+      _position = pos;
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(pos.latitude, pos.longitude);
+      if (placemarks.isNotEmpty) {
+        cityName = placemarks.first.locality ??
+            placemarks.first.subAdministrativeArea ??
+            '';
+      }
+    } catch (e) {
+      cityName = '';
+    }
+    await Future.delayed(Duration.zero); // Wait for build
+    TextEditingController controller = TextEditingController(text: cityName);
+    String? city = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Enter your city'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: const InputDecoration(hintText: 'City name'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(controller.text.trim());
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    if (city != null && city.isNotEmpty) {
       setState(() {
-        _position = pos;
+        _city = city;
       });
-      final clinics =
-          await _apiService.nearbyClinics('${pos.latitude},${pos.longitude}');
+      _fetchClinics(city);
+    } else {
+      setState(() {
+        _error = 'City is required to fetch clinics.';
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchClinics(String city) async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final clinics = await _apiService.nearbyClinics(city);
       if (_disposed) return;
       setState(() {
         _clinics = clinics;
@@ -64,7 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       if (_disposed) return;
       setState(() {
-        _error = 'Failed to fetch clinics: ${e.toString()}';
+        _error = 'Failed to fetch clinics: [${e.toString()}';
       });
     } finally {
       if (_disposed) return;
@@ -157,9 +210,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             title: Text(c['name'] ?? 'Unknown Clinic',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w600)),
-                            subtitle: Text(
-                              c['address'] ?? '',
-                              style: const TextStyle(color: Colors.grey),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  c['address'] ?? '',
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                                if (c['rating'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.star,
+                                          color: Colors.amber, size: 18),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        c['rating'].toString(),
+                                        style: const TextStyle(
+                                            color: Colors.black87),
+                                      ),
+                                    ],
+                                  ),
+                              ],
                             ),
                             trailing: SizedBox(
                               width: 110,
@@ -170,7 +241,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10)),
                                 ),
-                                onPressed: () {},
+                                onPressed: c['phone'] != null &&
+                                        c['phone'].toString().isNotEmpty
+                                    ? () async {
+                                        final phone = c['phone'].toString();
+                                        final uri = Uri.parse('tel:$phone');
+                                        if (await canLaunchUrl(uri)) {
+                                          await launchUrl(uri);
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    'Could not launch phone app')),
+                                          );
+                                        }
+                                      }
+                                    : null,
                                 child: const Text("Contact"),
                               ),
                             ),
