@@ -1,17 +1,81 @@
 import 'package:flutter/material.dart';
+import 'package:dental_care/services/api_service.dart';
+import 'package:geolocator/geolocator.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   static const routeName = '/profile';
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final clinics = [
-      {'name': 'BrightSmile Dental', 'rating': 4.6, 'distance': '1.2 km'},
-      {'name': 'City Care Dental', 'rating': 4.4, 'distance': '2.0 km'},
-      {'name': 'Pearl Dental Studio', 'rating': 4.7, 'distance': '3.1 km'},
-    ];
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
 
+class _ProfileScreenState extends State<ProfileScreen> {
+  final ApiService _apiService = ApiService();
+  List<Map<String, dynamic>> _clinics = [];
+  bool _loading = true;
+  String? _error;
+  Position? _position;
+  bool _disposed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLocationAndClinics();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  Future<void> _fetchLocationAndClinics() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw Exception('Location services are disabled.');
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw Exception('Location permissions are denied');
+        }
+      }
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception('Location permissions are permanently denied.');
+      }
+      final pos = await Geolocator.getCurrentPosition();
+      if (_disposed) return;
+      setState(() {
+        _position = pos;
+      });
+      final clinics =
+          await _apiService.nearbyClinics('${pos.latitude},${pos.longitude}');
+      if (_disposed) return;
+      setState(() {
+        _clinics = clinics;
+      });
+    } catch (e) {
+      if (_disposed) return;
+      setState(() {
+        _error = 'Failed to fetch clinics: ${e.toString()}';
+      });
+    } finally {
+      if (_disposed) return;
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
@@ -72,41 +136,46 @@ class ProfileScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-
-                  //  Clinics List
-                  ...clinics.map((c) => Card(
-                        elevation: 2,
-                        margin: const EdgeInsets.symmetric(vertical: 6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: ListTile(
-                          leading: Icon(Icons.location_on,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 30),
-                          title: Text(c['name'] as String,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: Text(
-                            ' ${(c['rating'] as double).toStringAsFixed(1)} • ${c['distance']}',
-                            style: const TextStyle(color: Colors.grey),
+                  if (_loading)
+                    const Center(child: CircularProgressIndicator()),
+                  if (_error != null)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(_error!, style: TextStyle(color: Colors.red)),
+                    ),
+                  if (!_loading && _error == null)
+                    ..._clinics.map((c) => Card(
+                          elevation: 2,
+                          margin: const EdgeInsets.symmetric(vertical: 6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
                           ),
-                          trailing: SizedBox(
-                            width: 110,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
+                          child: ListTile(
+                            leading: Icon(Icons.location_on,
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 30),
+                            title: Text(c['name'] ?? 'Unknown Clinic',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600)),
+                            subtitle: Text(
+                              c['address'] ?? '',
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                            trailing: SizedBox(
+                              width: 110,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                ),
+                                onPressed: () {},
+                                child: const Text("Contact"),
                               ),
-                              onPressed: () {},
-                              child: const Text("Contact"),
                             ),
                           ),
-                        ),
-                      )),
-
+                        )),
                   const SizedBox(height: 20),
 
                   //  Doctor Connect
