@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
 
 class ResultScreen extends StatelessWidget {
   const ResultScreen({super.key});
@@ -10,6 +12,7 @@ class ResultScreen extends StatelessWidget {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     final imagePath = args?['imagePath'] as String?;
+    final imageBytes = args?['imageBytes'] as Uint8List?;
     final disease = args?['disease'] as String?;
     final confidence = args?['confidence'] as double?;
     final recommendation = args?['recommendation'] as String?;
@@ -65,15 +68,25 @@ class ResultScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(color: Colors.grey.shade300),
                       ),
-                      child: imagePath == null
-                          ? const Center(
-                              child: Text('No image provided',
-                                  style: TextStyle(color: Colors.grey)))
-                          : ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image.file(File(imagePath),
-                                  fit: BoxFit.cover),
-                            ),
+                      child: kIsWeb
+                          ? (imageBytes == null
+                              ? const Center(
+                                  child: Text('No image provided',
+                                      style: TextStyle(color: Colors.grey)))
+                              : ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image.memory(imageBytes,
+                                      fit: BoxFit.cover),
+                                ))
+                          : (imagePath == null
+                              ? const Center(
+                                  child: Text('No image provided',
+                                      style: TextStyle(color: Colors.grey)))
+                              : ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image.file(File(imagePath),
+                                      fit: BoxFit.cover),
+                                )),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -92,7 +105,7 @@ class ResultScreen extends StatelessWidget {
                     title: "Confidence Score",
                     value: confidence == null
                         ? "—"
-                        : "${(confidence * 100).toStringAsFixed(1)} %",
+                        : "${(confidence).toStringAsFixed(1)} %",
                     subtitle: confidence == null
                         ? "Confidence score will be shown here."
                         : null,
