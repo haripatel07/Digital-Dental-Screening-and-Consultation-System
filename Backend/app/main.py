@@ -20,7 +20,7 @@ app.add_middleware(
 # Routers
 app.include_router(normal.router, prefix="/predict", tags=["Normal Image"])
 app.include_router(xray.router, prefix="/predict", tags=["X-ray Image"])
-app.include_router(clinics.router, prefix="/clinics", tags=["Clinics"])
+app.include_router(clinics.router)
 
 @app.get("/")
 def root():
