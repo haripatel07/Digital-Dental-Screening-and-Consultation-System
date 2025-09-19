@@ -11,3 +11,5 @@ timm
 geopy
 python-dotenv
 requests
+transformers==4.39.3
+sentence-transformers==2.6.1

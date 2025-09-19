@@ -68,14 +68,8 @@ def get_nearby_clinics(location: str, radius: int = 5000, limit: int = 20):
     Returns:
         dict with list of clinics.
     """
-    # Handle lat,lon directly or geocode city name
-    if "," in location:
-        try:
-            lat, lon = map(float, location.split(","))
-        except ValueError:
-            return {"error": "Invalid lat,lon format. Use 'lat,lon'"}
-    else:
-        lat, lon = get_coordinates(location)
+    # Always geocode city name, ignore lat,lon input
+    lat, lon = get_coordinates(location)
 
     if lat is None or lon is None:
         return {"error": "Invalid location. Could not fetch coordinates."}
@@ -99,12 +93,11 @@ def get_nearby_clinics(location: str, radius: int = 5000, limit: int = 20):
     results = []
     for feature in data.get("features", []):
         props = feature.get("properties", {})
-        # Geoapify returns coordinates as [lon, lat] in geometry.coordinates
         coords = feature.get("geometry", {}).get("coordinates", [None, None])
         results.append({
             "name": props.get("name", "Unknown Clinic"),
             "address": props.get("formatted", ""),
-            "rating": props.get("rating"),  # not always available
+            "rating": props.get("rating"),
             "location": {
                 "lat": coords[1],
                 "lon": coords[0],

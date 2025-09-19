@@ -28,8 +28,7 @@ def test_xray(image_path):
         except Exception as e:
             print(f"X-ray Image Prediction Error: {e}")
 
-
-
+# Test Clinic Scrapper
 def test_scrapper(city_name):
     url = f"{BASE_URL}/clinics"
     params = {"location": city_name}
@@ -40,7 +39,19 @@ def test_scrapper(city_name):
     except Exception as e:
         print(f"Scrapper Error: {e}")
 
+# Test Chatbot
+def test_chatbot(message):
+    url = f"{BASE_URL}/chatbot/"
+    payload = {"message": message}
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        print("Chatbot Response:", response.json())
+    except Exception as e:
+        print(f"Chatbot Error: {e}")
+
 if __name__ == "__main__":
-    test_normal("sample_data/normal1.jpg")
-    test_xray("sample_data/xray1.jpg")
-    test_scrapper("Ahmedabad")
+    #test_normal("sample_data/normal1.jpg")
+    #test_xray("sample_data/xray1.jpg")
+    #test_scrapper("Ahmedabad")
+    test_chatbot("How can I prevent cavities?")
