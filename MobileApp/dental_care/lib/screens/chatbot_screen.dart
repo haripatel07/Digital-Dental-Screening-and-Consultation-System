@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../services/api_service.dart';
+import '../models/chat_message.dart';
 
 class ChatbotScreen extends StatefulWidget {
   static const routeName = '/chatbot';
@@ -12,10 +12,9 @@ class ChatbotScreen extends StatefulWidget {
 
 class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _controller = TextEditingController();
-  final List<Map<String, String>> _messages = [];
+  final List<ChatMessage> _messages = [];
   bool _isLoading = false;
-
-  final String apiUrl = "https://web-production-cf49.up.railway.app/chatbot";
+  final ApiService _apiService = ApiService();
 
   final List<String> quickSuggestions = [
     "How to prevent cavities?",
@@ -26,38 +25,21 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
   Future<void> sendMessage(String message) async {
     if (!mounted) return;
-
     setState(() {
-      _messages.add({"sender": "user", "text": message});
+      _messages.add(ChatMessage(text: message, isUser: true));
       _isLoading = true;
     });
-
     try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode({"message": message}),
-      );
-
+      final response = await _apiService.sendChatMessage(message);
       if (!mounted) return;
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          _messages.add({"sender": "bot", "text": data["reply"] ?? "..."});
-        });
-      } else {
-        setState(() {
-          _messages.add({
-            "sender": "bot",
-            "text": "Unable to connect to chatbot. Try again later."
-          });
-        });
-      }
+      setState(() {
+        _messages.add(ChatMessage(text: response.reply, isUser: false));
+      });
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _messages.add({"sender": "bot", "text": " Error: ${e.toString()}"});
+        _messages
+            .add(ChatMessage(text: "Error: ${e.toString()}", isUser: false));
       });
     } finally {
       if (mounted) {
@@ -68,8 +50,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     }
   }
 
-  Widget _buildMessage(Map<String, String> msg) {
-    final isUser = msg["sender"] == "user";
+  Widget _buildMessage(ChatMessage msg) {
+    final isUser = msg.isUser;
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -88,7 +70,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           ),
         ),
         child: Text(
-          msg["text"] ?? "",
+          msg.text,
           style: TextStyle(
             color: isUser
                 ? Theme.of(context).colorScheme.onPrimary
