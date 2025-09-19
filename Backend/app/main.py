@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import normal, xray, clinics
+from app.routers import normal, xray, clinics, chatbot
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -21,6 +21,7 @@ app.add_middleware(
 app.include_router(normal.router, prefix="/predict", tags=["Normal Image"])
 app.include_router(xray.router, prefix="/predict", tags=["X-ray Image"])
 app.include_router(clinics.router)
+app.include_router(chatbot.router, prefix = "/chatbot", tags=["Chatbot"])
 
 @app.get("/")
 def root():
