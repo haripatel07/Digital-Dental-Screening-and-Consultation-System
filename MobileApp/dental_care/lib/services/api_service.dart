@@ -74,3 +74,27 @@ class ApiService {
     }
   }
 }
+
+class ChatbotResponse {
+  final String reply;
+  ChatbotResponse({required this.reply});
+  factory ChatbotResponse.fromJson(Map<String, dynamic> json) {
+    return ChatbotResponse(reply: json['reply'] ?? '');
+  }
+}
+
+extension ApiServiceChatbot on ApiService {
+  Future<ChatbotResponse> sendChatMessage(String message) async {
+    final url = Uri.parse('${ApiService.baseUrl}/chatbot/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'message': message}),
+    );
+    if (response.statusCode == 200) {
+      return ChatbotResponse.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to get chatbot reply');
+    }
+  }
+}
