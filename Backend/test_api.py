@@ -13,8 +13,6 @@ def test_articles():
             print(f"{i}. {article.get('title')} - {article.get('url')}")
     except Exception as e:
         print(f"Articles Endpoint Error: {e}")
-import requests
-
 
 # Test Normal Image
 def test_normal(image_path):
