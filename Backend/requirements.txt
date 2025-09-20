@@ -1,3 +1,6 @@
+# For MongoDB and password hashing
+motor
+passlib[bcrypt]
 fastapi
 uvicorn
 pydantic
@@ -11,5 +14,7 @@ timm
 geopy
 python-dotenv
 requests
+beautifulsoup4
 transformers==4.39.3
 sentence-transformers==2.6.1
+email-validator
