@@ -3,6 +3,7 @@ import 'package:dental_care/services/api_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../services/auth_storage.dart';
 
 class ProfileScreen extends StatefulWidget {
   static const routeName = '/profile';
@@ -130,6 +131,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
+      ),
       body: Column(
         children: [
           // Gradient Header
@@ -297,8 +307,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
-                      onPressed: () =>
-                          Navigator.pushReplacementNamed(context, '/login'),
+                      onPressed: () async {
+                        await AuthStorage.clearToken();
+                        if (mounted) {
+                          Navigator.pushReplacementNamed(context, '/login');
+                        }
+                      },
                       icon: const Icon(Icons.logout, color: Colors.white),
                       label: const Text("Logout",
                           style: TextStyle(color: Colors.white)),

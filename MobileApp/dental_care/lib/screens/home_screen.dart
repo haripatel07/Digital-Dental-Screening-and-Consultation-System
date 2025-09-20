@@ -9,6 +9,7 @@ class HomeScreen extends StatelessWidget {
       ('Upload Normal Image', Icons.camera_alt, '/upload_normal'),
       ('Upload X-ray Image', Icons.medical_services, '/upload_xray'),
       ('Chatbot', Icons.chat_bubble, '/chatbot'),
+      ('Articles', Icons.article, '/articles'),
       ('Profile', Icons.person, '/profile'),
     ];
 

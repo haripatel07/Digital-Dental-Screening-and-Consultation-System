@@ -17,7 +17,15 @@ class TipsScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Tips & Recommendations')),
+      appBar: AppBar(
+        title: const Text('Tips & Recommendations'),
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
+      ),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: tips.length,
