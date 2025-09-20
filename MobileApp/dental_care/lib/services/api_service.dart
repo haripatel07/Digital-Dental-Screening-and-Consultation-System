@@ -1,10 +1,22 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';
 
 class ApiService {
   static const String baseUrl = 'http://127.0.0.1:8001';
+
+  Future<List<Map<String, dynamic>>> fetchArticles() async {
+    final url = Uri.parse('$baseUrl/content/articles');
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final articles = data['articles'] as List<dynamic>?;
+      if (articles == null) return [];
+      return articles.map((e) => Map<String, dynamic>.from(e)).toList();
+    } else {
+      throw Exception('Failed to fetch articles');
+    }
+  }
 
   Future<Map<String, dynamic>> predictNormal(String imagePath) async {
     final url = Uri.parse('$baseUrl/predict/normal');
@@ -71,6 +83,44 @@ class ApiService {
       return clinics?.cast<Map<String, dynamic>>() ?? [];
     } else {
       throw Exception('Failed to fetch clinics');
+    }
+  }
+
+  // User signup
+  Future<Map<String, dynamic>> signup(String email, String password,
+      {String? name}) async {
+    final url = Uri.parse('$baseUrl/auth/signup');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'email': email,
+        'password': password,
+        if (name != null) 'name': name,
+      }),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body) as Map<String, dynamic>;
+    } else {
+      throw Exception(json.decode(response.body)['detail'] ?? 'Signup failed');
+    }
+  }
+
+  // User login
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    final url = Uri.parse('$baseUrl/auth/login');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'email': email,
+        'password': password,
+      }),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body) as Map<String, dynamic>;
+    } else {
+      throw Exception(json.decode(response.body)['detail'] ?? 'Login failed');
     }
   }
 }
