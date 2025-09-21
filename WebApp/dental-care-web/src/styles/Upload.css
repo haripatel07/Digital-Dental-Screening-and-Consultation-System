@@ -1,0 +1,49 @@
+/* Upload.css - Consistent, clean UI for upload pages */
+.upload-gradient {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #008080 0%, #20e3b2 100%);
+  display: flex;
+  flex-direction: column;
+}
+.upload-form {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 2rem 2.5rem;
+  margin: 3rem auto;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.upload-form h2 {
+  color: #008080;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+.upload-form input[type="file"] {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+.upload-form button {
+  background: #008080;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.upload-form button:disabled {
+  background: #b2dfdb;
+  color: #fff;
+  cursor: not-allowed;
+}
+.upload-form .error {
+  color: #d32f2f;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}

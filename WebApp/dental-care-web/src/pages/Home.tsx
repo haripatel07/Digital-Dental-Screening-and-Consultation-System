@@ -1,53 +1,39 @@
-import { Box, Button, Typography, Paper, Grid } from "@mui/material";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import "../styles/Home.css";
 
-export default function Home() {
+const items = [
+  { label: "Upload Normal Image", icon: "📷", route: "/upload-normal" },
+  { label: "Upload X-ray Image", icon: "🩻", route: "/upload-xray" },
+  { label: "Chatbot", icon: "💬", route: "/chatbot" },
+  { label: "Articles", icon: "📄", route: "/articles" },
+  { label: "Profile", icon: "👤", route: "/profile" },
+];
+
+const Home: React.FC = () => {
   const navigate = useNavigate();
-
   return (
-    <>
-      <Navbar />
-      <Box p={3}>
-        <Typography variant="h5" mb={2} color="primary">
-          Welcome to Dental Care
-        </Typography>
-
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <Paper sx={{ p: 3, borderRadius: 2, textAlign: "center" }}>
-              <Typography variant="h6">Upload Normal Image</Typography>
-              <Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate("/upload-normal")}>
-                Upload
-              </Button>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Paper sx={{ p: 3, borderRadius: 2, textAlign: "center" }}>
-              <Typography variant="h6">Upload X-ray</Typography>
-              <Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate("/upload-xray")}>
-                Upload
-              </Button>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Paper sx={{ p: 3, borderRadius: 2, textAlign: "center" }}>
-              <Typography variant="h6">Chatbot</Typography>
-              <Button variant="outlined" sx={{ mt: 2 }} onClick={() => navigate("/chatbot")}>
-                Open Chatbot
-              </Button>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Paper sx={{ p: 3, borderRadius: 2, textAlign: "center" }}>
-              <Typography variant="h6">Profile</Typography>
-              <Button variant="outlined" sx={{ mt: 2 }} onClick={() => navigate("/profile")}>
-                View Profile
-              </Button>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Box>
-    </>
+    <div className="home-gradient">
+      <header className="home-header">
+        <h1>Dental Care</h1>
+        <button className="logout-btn" onClick={() => navigate("/login")}>
+          Logout
+        </button>
+      </header>
+      <div className="home-grid">
+        {items.map((item) => (
+          <div
+            key={item.route}
+            className="home-card"
+            onClick={() => navigate(item.route)}
+          >
+            <span className="home-icon">{item.icon}</span>
+            <div>{item.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
-}
+};
+
+export default Home;

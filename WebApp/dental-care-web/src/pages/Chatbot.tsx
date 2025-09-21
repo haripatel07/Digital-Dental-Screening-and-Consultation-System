@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Box, TextField, IconButton, CircularProgress, Typography } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import axios from "axios";
 import NavBar from "../components/Navbar";
 import ChatMessage from "../components/ChatMessage";
 import QuickSuggestions from "../components/QuickSuggestions";
-
-const apiUrl = "https://web-production-cf49.up.railway.app/chatbot";
+import { sendChatbotMessage } from "../services/apiService";
+import "../styles/Chatbot.css";
 
 export default function Chatbot() {
   const [messages, setMessages] = useState<{ sender: "user" | "bot"; text: string }[]>([]);
@@ -17,12 +16,12 @@ export default function Chatbot() {
     setMessages((prev) => [...prev, { sender: "user", text: msg }]);
     setLoading(true);
     try {
-      const res = await axios.post(apiUrl, { message: msg });
-      setMessages((prev) => [...prev, { sender: "bot", text: res.data.reply }]);
+      const reply = await sendChatbotMessage(msg);
+      setMessages((prev) => [...prev, { sender: "bot", text: reply }]);
     } catch (e) {
       setMessages((prev) => [
         ...prev,
-        { sender: "bot", text: "⚠️ Error connecting to chatbot" },
+        { sender: "bot", text: "Error connecting to chatbot" },
       ]);
     } finally {
       setLoading(false);
@@ -30,26 +29,17 @@ export default function Chatbot() {
   };
 
   return (
-    <Box>
-      <NavBar />
-      <Box p={2} height="calc(100vh - 64px)" display="flex" flexDirection="column">
-        <Typography variant="h6" textAlign="center" mb={2}>
-          Dental Chatbot
-        </Typography>
-
-        {/* Messages */}
-        <Box flex={1} overflow="auto" mb={2}>
+    <div className="chatbot-gradient">
+      <div className="chatbot-container">
+        <div className="chatbot-header">Dental Chatbot</div>
+        <div className="chatbot-messages">
           {messages.map((m, i) => (
             <ChatMessage key={i} sender={m.sender} text={m.text} />
           ))}
           {loading && <CircularProgress size={20} />}
-        </Box>
-
-        {/* Quick Suggestions */}
+        </div>
         <QuickSuggestions onSelect={sendMessage} />
-
-        {/* Input */}
-        <Box display="flex" mt={1}>
+        <div className="chatbot-input-row">
           <TextField
             fullWidth
             placeholder="Ask me about dental health..."
@@ -73,8 +63,8 @@ export default function Chatbot() {
           >
             <SendIcon />
           </IconButton>
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }

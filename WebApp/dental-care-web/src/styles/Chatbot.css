@@ -1,0 +1,34 @@
+/* Chatbot.css - Clean, modern UI for chatbot page */
+.chatbot-gradient {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #008080 0%, #20e3b2 100%);
+  display: flex;
+  flex-direction: column;
+}
+.chatbot-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+}
+.chatbot-header {
+  color: #008080;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.chatbot-messages {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+}
+.chatbot-input-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
