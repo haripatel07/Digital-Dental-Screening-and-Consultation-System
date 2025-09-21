@@ -37,6 +37,11 @@ def get_clinics_in_bbox(lon1, lat1, lon2, lat2, limit=20):
         results.append({
             "name": props.get("name", "Unknown Clinic"),
             "address": props.get("formatted", ""),
+            "contact": {
+                "phone": props.get("phone"),
+                "website": props.get("website"),
+                "email": props.get("email"),
+            },
             "location": {
                 "lat": coords[1],
                 "lon": coords[0],
@@ -98,6 +103,11 @@ def get_nearby_clinics(location: str, radius: int = 5000, limit: int = 20):
             "name": props.get("name", "Unknown Clinic"),
             "address": props.get("formatted", ""),
             "rating": props.get("rating"),
+            "contact": {
+                "phone": props.get("phone"),
+                "website": props.get("website"),
+                "email": props.get("email"),
+            },
             "location": {
                 "lat": coords[1],
                 "lon": coords[0],

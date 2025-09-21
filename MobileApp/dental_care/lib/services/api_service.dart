@@ -80,7 +80,13 @@ class ApiService {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final clinics = data['clinics'] as List<dynamic>?;
-      return clinics?.cast<Map<String, dynamic>>() ?? [];
+      if (clinics == null) return [];
+      // Ensure contact details are always present
+      return clinics.map((e) {
+        final clinic = Map<String, dynamic>.from(e);
+        clinic['contact'] = clinic['contact'] ?? {};
+        return clinic;
+      }).toList();
     } else {
       throw Exception('Failed to fetch clinics');
     }
@@ -121,6 +127,55 @@ class ApiService {
       return json.decode(response.body) as Map<String, dynamic>;
     } else {
       throw Exception(json.decode(response.body)['detail'] ?? 'Login failed');
+    }
+  }
+
+  // Get user details
+  Future<Map<String, dynamic>> getUserDetails(String token) async {
+    final url = Uri.parse('$baseUrl/auth/user-details');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body) as Map<String, dynamic>;
+    } else {
+      throw Exception('Failed to fetch user details');
+    }
+  }
+
+  // Update user details
+  Future<Map<String, dynamic>> updateUserDetails(
+    String token, {
+    String? name,
+    String? phone,
+    String? address,
+    String? city,
+    int? age,
+  }) async {
+    final url = Uri.parse('$baseUrl/auth/user-details');
+    final Map<String, dynamic> body = {};
+    if (name != null) body['name'] = name;
+    if (phone != null) body['phone'] = phone;
+    if (address != null) body['address'] = address;
+    if (city != null) body['city'] = city;
+    if (age != null) body['age'] = age;
+
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode(body),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body) as Map<String, dynamic>;
+    } else {
+      throw Exception('Failed to update user details');
     }
   }
 }
