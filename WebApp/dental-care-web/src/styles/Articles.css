@@ -1,0 +1,44 @@
+/* Articles.css - Clean, modern UI for articles page */
+.articles-list {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+.articles-list h2 {
+  color: #008080;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+.article-card {
+  background: #f7f7f7;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 1.5rem 1rem;
+  margin-bottom: 1.5rem;
+  transition: box-shadow 0.2s;
+}
+.article-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+}
+.article-card h3 {
+  color: #008080;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.article-card p {
+  color: #333;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+.article-card a {
+  color: #20b2aa;
+  text-decoration: underline;
+  font-weight: 500;
+  font-size: 0.95rem;
+}

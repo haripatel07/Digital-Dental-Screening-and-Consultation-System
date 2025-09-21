@@ -11,6 +11,7 @@ export default function Navbar() {
     { label: "Upload X-ray", path: "/upload-xray" },
     { label: "Chatbot", path: "/chatbot" },
     { label: "Profile", path: "/profile" },
+    { label: "Articles", path: "/articles" },
   ];
 
   return (

@@ -1,24 +1,72 @@
-import { Box, Typography, Button, Paper } from "@mui/material";
-import NavBar from "../components/Navbar";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { predictNormal } from "../services/apiService";
+import type { ResultModel } from "../models/ResultModel";
+import "../styles/Upload.css";
 
-export default function UploadNormal() {
+const UploadNormal: React.FC = () => {
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0] || null;
+    setFile(selectedFile);
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onloadend = () => setPreview(reader.result as string);
+      reader.readAsDataURL(selectedFile);
+    } else {
+      setPreview(null);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const result: ResultModel = await predictNormal(file);
+      // Pass preview as imagePath if backend does not return it
+      if (!result.imagePath && preview) result.imagePath = preview;
+      navigate("/result", { state: result });
+    } catch (err: any) {
+      setError(err.message || "Prediction failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <Box>
-      <NavBar />
-      <Box p={3} display="flex" justifyContent="center">
-        <Paper sx={{ p: 4, width: 500, borderRadius: 3, boxShadow: 2 }}>
-          <Typography variant="h6" mb={3} color="primary" fontWeight="bold">
-            Upload Normal Dental Image
-          </Typography>
-
-          <Button variant="contained" component="label" sx={{ mr: 2 }}>
-            Choose File
-            <input type="file" hidden />
-          </Button>
-
-          <Button variant="outlined">Submit</Button>
-        </Paper>
-      </Box>
-    </Box>
+    <div className="upload-gradient">
+      <form className="upload-form" onSubmit={handleSubmit}>
+        <h2>Upload Normal Image</h2>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          required
+        />
+        {preview && (
+          <img
+            src={preview}
+            alt="Preview"
+            style={{ maxWidth: "100%", borderRadius: 12, marginBottom: 16, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
+          />
+        )}
+        <button
+          type="submit"
+          disabled={loading || !file}
+        >
+          {loading ? "Uploading..." : "Upload & Predict"}
+        </button>
+        {error && <div className="error">{error}</div>}
+      </form>
+    </div>
   );
-}
+};
+
+export default UploadNormal;
