@@ -1,12 +1,8 @@
 import requests
 import os
-from dotenv import load_dotenv
 from geopy.geocoders import Nominatim
 
-# Load environment variables
-load_dotenv()
-
-# Get your Geoapify API key from .env
+# Get your Geoapify API key from environment variables (Hugging Face Spaces secrets)
 GEOAPIFY_API_KEY = os.getenv("GEOAPIFY_API_KEY")
 
 def get_clinics_in_bbox(lon1, lat1, lon2, lat2, limit=20):

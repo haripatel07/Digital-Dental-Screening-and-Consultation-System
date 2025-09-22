@@ -8,7 +8,7 @@ python-multipart
 torch
 torchvision
 Pillow
-opencv-python
+opencv-python-headless
 numpy
 timm
 geopy

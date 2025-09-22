@@ -95,8 +95,8 @@ class DentalClassifier:
 # ----------------------------
 # Module-level helper: initialize classifier once
 # ----------------------------
-# Default path: repo_root/Models/normal_dental_model.pth
-MODEL_PATH = "../Models/normal_dental_model.pth"
+# Default path: repo_root/models/normal_dental_model.pth
+MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "models", "normal_dental_model.pth")
 
 _classifier: Optional[DentalClassifier] = None
 

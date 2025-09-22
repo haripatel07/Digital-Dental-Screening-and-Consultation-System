@@ -5,7 +5,14 @@ from sentence_transformers import SentenceTransformer, util
 # ------------------------------
 # Load Model
 # ------------------------------
-model = SentenceTransformer("all-MiniLM-L6-v2")
+# Global model variable - will be loaded lazily
+model = None
+
+def load_model():
+    global model
+    if model is None:
+        model = SentenceTransformer("all-MiniLM-L6-v2")
+    return model
 
 # ------------------------------
 # Expanded Dental FAQ Knowledge Base
@@ -66,7 +73,16 @@ faq_data = {
 
 faq_questions = list(faq_data.keys())
 faq_answers = list(faq_data.values())
-faq_embeddings = model.encode(faq_questions, convert_to_tensor=True)
+
+# Global embeddings variable - will be computed lazily
+faq_embeddings = None
+
+def get_faq_embeddings():
+    global faq_embeddings
+    if faq_embeddings is None:
+        model = load_model()
+        faq_embeddings = model.encode(faq_questions, convert_to_tensor=True)
+    return faq_embeddings
 
 # ------------------------------
 # Request/Response Models
@@ -80,9 +96,14 @@ class ChatResponse(BaseModel):
 
 def chatbot_endpoint(req: ChatRequest):
     user_msg = req.message
+    
+    # Load model and embeddings lazily
+    model = load_model()
+    embeddings = get_faq_embeddings()
+    
     user_embedding = model.encode(user_msg, convert_to_tensor=True)
 
-    scores = util.cos_sim(user_embedding, faq_embeddings)[0]
+    scores = util.cos_sim(user_embedding, embeddings)[0]
     best_match_idx = int(scores.argmax())
     best_score = float(scores[best_match_idx])
     threshold = 0.55

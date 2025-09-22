@@ -154,11 +154,11 @@ def test_user_flow():
 
 if __name__ == "__main__":
     # Basic endpoint tests
-    #test_normal("sample_data/normal1.jpg")
-    #test_xray("sample_data/xray1.jpg")
-    #test_scrapper("Ahmedabad")
-    #test_chatbot("How can I prevent cavities?")
-    #test_articles()
+    test_normal("sample_data/normal1.jpg")
+    test_xray("sample_data/xray1.jpg")
+    test_scrapper("Ahmedabad")
+    test_chatbot("How can I prevent cavities?")
+    test_articles()
     
     # Auth and user details tests
     #test_signup("testuser@example.com", "testpass123", name="Test User")

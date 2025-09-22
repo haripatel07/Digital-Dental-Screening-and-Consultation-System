@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:typed_data';
 
 class ApiService {
-  static const String baseUrl = 'http://127.0.0.1:8001';
+  static const String baseUrl = 'https://haripatel07-dental-care.hf.space';
 
   Future<List<Map<String, dynamic>>> fetchArticles() async {
     final url = Uri.parse('$baseUrl/content/articles');

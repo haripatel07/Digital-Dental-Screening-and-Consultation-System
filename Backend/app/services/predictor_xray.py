@@ -5,6 +5,7 @@ import torchvision.transforms as transforms
 from PIL import Image
 from fastapi import UploadFile
 import io
+import os
 import numpy as np
 import cv2
 import asyncio
@@ -33,38 +34,45 @@ class SwinDentalModel(nn.Module):
 # -----------------------------
 # Load Model Checkpoint
 # -----------------------------
-MODEL_PATH = "../Models/final_dental_xray_model.pth"
+MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "models", "final_dental_xray_model.pth")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 logger.info(f"Using device: {device}")
 
-model = SwinDentalModel(num_classes=6)
-try:
-    ckpt = torch.load(MODEL_PATH, map_location=device)
-    if "student" in ckpt:
-        state_dict = ckpt["student"]
-        logger.info("Loaded 'student' encoder from DINO checkpoint")
-    elif "teacher" in ckpt:
-        state_dict = ckpt["teacher"]
-        logger.info("Loaded 'teacher' encoder from DINO checkpoint")
-    elif "state_dict" in ckpt:
-        state_dict = ckpt["state_dict"]
-        logger.info("Loaded 'state_dict' from checkpoint")
-    else:
-        state_dict = ckpt
-        logger.info("Loaded direct state_dict")
+# Global model variable - will be loaded lazily
+model = None
 
-    new_state = {}
-    for k, v in state_dict.items():
-        new_k = k.replace("module.", "").replace("backbone.", "").replace("student.", "").replace("teacher.", "")
-        new_state[new_k] = v
+def load_model():
+    global model
+    if model is None:
+        model = SwinDentalModel(num_classes=6)
+        try:
+            ckpt = torch.load(MODEL_PATH, map_location=device)
+            if "student" in ckpt:
+                state_dict = ckpt["student"]
+                logger.info("Loaded 'student' encoder from DINO checkpoint")
+            elif "teacher" in ckpt:
+                state_dict = ckpt["teacher"]
+                logger.info("Loaded 'teacher' encoder from DINO checkpoint")
+            elif "state_dict" in ckpt:
+                state_dict = ckpt["state_dict"]
+                logger.info("Loaded 'state_dict' from checkpoint")
+            else:
+                state_dict = ckpt
+                logger.info("Loaded direct state_dict")
 
-    model.load_state_dict(new_state, strict=False)
-    model.to(device)
-    model.eval()
-    logger.info("Model loaded successfully")
-except Exception as e:
-    logger.error(f"Error loading model: {e}")
-    raise
+            new_state = {}
+            for k, v in state_dict.items():
+                new_k = k.replace("module.", "").replace("backbone.", "").replace("student.", "").replace("teacher.", "")
+                new_state[new_k] = v
+
+            model.load_state_dict(new_state, strict=False)
+            model.to(device)
+            model.eval()
+            logger.info("Model loaded successfully")
+        except Exception as e:
+            logger.error(f"Error loading model: {e}")
+            raise
+    return model
 
 # -----------------------------
 # CLAHE Transform
@@ -96,12 +104,15 @@ transform = transforms.Compose([
 # -----------------------------
 async def predict(file: UploadFile) -> dict:
     try:
+        # Load model lazily when first prediction is made
+        model = load_model()
+        
         image_bytes = await file.read()
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    except Exception:
+    except Exception as e:
         return {
             "type": "xray_image",
-            "error": "Invalid image file."
+            "error": f"Error processing image: {str(e)}"
         }
 
     input_tensor = transform(image).unsqueeze(0).to(device)
