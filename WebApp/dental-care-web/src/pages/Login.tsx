@@ -20,7 +20,7 @@ export default function Login() {
         "http://127.0.0.1:8001/auth/login",
         { email, password }
       );
-      saveToken(response.data.token);
+      saveToken(response.data); // Pass full response to saveToken
       navigate("/");
     } catch (err: any) {
       setError(err.response?.data?.message || "Login failed");

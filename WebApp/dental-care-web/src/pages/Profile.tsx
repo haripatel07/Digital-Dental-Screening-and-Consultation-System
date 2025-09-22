@@ -179,6 +179,7 @@ const Profile: React.FC = () => {
               const phone = contact.phone || "";
               const website = contact.website || "";
               const email = contact.email || "";
+              const [modalOpen, setModalOpen] = useState(false);
               return (
                 <ListItem key={i} className="clinic-tile">
                   <ListItemText
@@ -188,28 +189,55 @@ const Profile: React.FC = () => {
                         {`Rating: ${c.rating || "N/A"}`}
                         <br />
                         {c.address && <span>{c.address}<br /></span>}
-                        {phone && (
-                          <span>
-                            📞 <a href={`tel:${phone}`}>{phone}</a><br />
-                          </span>
-                        )}
-                        {website && (
-                          <span>
-                            🌐 <a href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noopener noreferrer">Website</a><br />
-                          </span>
-                        )}
-                        {email && (
-                          <span>
-                            ✉️ <a href={`mailto:${email}`}>{email}</a><br />
-                          </span>
-                        )}
+                        <div style={{ marginTop: 8 }}>
+                          {phone && (
+                            <span style={{ display: 'inline-block', marginRight: 12 }}>
+                              <b>📞 Phone:</b> <a href={`tel:${phone}`}>{phone}</a>
+                            </span>
+                          )}
+                          {email && (
+                            <span style={{ display: 'inline-block', marginRight: 12 }}>
+                              <b>✉️ Email:</b> <a href={`mailto:${email}`}>{email}</a>
+                            </span>
+                          )}
+                          {website && (
+                            <span style={{ display: 'inline-block', marginRight: 12 }}>
+                              <b>🌐 Website:</b> <a href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noopener noreferrer">{website}</a>
+                            </span>
+                          )}
+                        </div>
                       </>
                     }
                   />
-                  {phone && (
-                    <Button variant="contained" onClick={() => window.open(`tel:${phone}`)}>
+                  {(phone || email || website) && (
+                    <Button variant="contained" onClick={() => setModalOpen(true)}>
                       Contact
                     </Button>
+                  )}
+                  {modalOpen && (
+                    <Dialog open={modalOpen} onClose={() => setModalOpen(false)}>
+                      <DialogTitle>Contact Options</DialogTitle>
+                      <DialogContent>
+                        {phone && (
+                          <Button fullWidth sx={{ mb: 1 }} variant="outlined" onClick={() => { window.open(`tel:${phone}`); setModalOpen(false); }}>
+                            📞 Call {phone}
+                          </Button>
+                        )}
+                        {email && (
+                          <Button fullWidth sx={{ mb: 1 }} variant="outlined" onClick={() => { window.open(`mailto:${email}`); setModalOpen(false); }}>
+                            ✉️ Email {email}
+                          </Button>
+                        )}
+                        {website && (
+                          <Button fullWidth sx={{ mb: 1 }} variant="outlined" onClick={() => { window.open(website.startsWith('http') ? website : `https://${website}`); setModalOpen(false); }}>
+                            🌐 Visit Website
+                          </Button>
+                        )}
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={() => setModalOpen(false)}>Close</Button>
+                      </DialogActions>
+                    </Dialog>
                   )}
                 </ListItem>
               );
