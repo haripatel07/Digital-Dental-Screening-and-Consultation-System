@@ -406,71 +406,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ],
                                 ),
-                              if (phone.isNotEmpty)
-                                GestureDetector(
-                                  onTap: () async {
-                                    final uri = Uri.parse('tel:$phone');
-                                    if (await canLaunchUrl(uri)) {
-                                      await launchUrl(uri);
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                'Could not launch phone app')),
-                                      );
-                                    }
-                                  },
-                                  child: Text('📞 $phone',
-                                      style: const TextStyle(
-                                          color: Colors.blue,
-                                          decoration:
-                                              TextDecoration.underline)),
-                                ),
-                              if (website.isNotEmpty)
-                                GestureDetector(
-                                  onTap: () async {
-                                    final uri = Uri.parse(
-                                        website.startsWith('http')
-                                            ? website
-                                            : 'https://$website');
-                                    if (await canLaunchUrl(uri)) {
-                                      await launchUrl(uri);
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                'Could not launch website')),
-                                      );
-                                    }
-                                  },
-                                  child: Text('🌐 Website',
-                                      style: const TextStyle(
-                                          color: Colors.blue,
-                                          decoration:
-                                              TextDecoration.underline)),
-                                ),
-                              if (email.isNotEmpty)
-                                GestureDetector(
-                                  onTap: () async {
-                                    final uri = Uri.parse('mailto:$email');
-                                    if (await canLaunchUrl(uri)) {
-                                      await launchUrl(uri);
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                'Could not launch email app')),
-                                      );
-                                    }
-                                  },
-                                  child: Text('✉️ $email',
-                                      style: const TextStyle(
-                                          color: Colors.blue,
-                                          decoration:
-                                              TextDecoration.underline)),
+                              if (phone.isNotEmpty ||
+                                  email.isNotEmpty ||
+                                  website.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (phone.isNotEmpty)
+                                        Text('📞 Phone: $phone',
+                                            style: const TextStyle(
+                                                color: Colors.black)),
+                                      if (email.isNotEmpty)
+                                        Text('✉️ Email: $email',
+                                            style: const TextStyle(
+                                                color: Colors.black)),
+                                      if (website.isNotEmpty)
+                                        Text('🌐 Website: $website',
+                                            style: const TextStyle(
+                                                color: Colors.black)),
+                                    ],
+                                  ),
                                 ),
                             ],
                           ),
@@ -483,19 +441,102 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
                               ),
-                              onPressed: phone.isNotEmpty
-                                  ? () async {
-                                      final uri = Uri.parse('tel:$phone');
-                                      if (await canLaunchUrl(uri)) {
-                                        await launchUrl(uri);
-                                      } else {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  'Could not launch phone app')),
-                                        );
-                                      }
+                              onPressed: (phone.isNotEmpty ||
+                                      email.isNotEmpty ||
+                                      website.isNotEmpty)
+                                  ? () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.vertical(
+                                                top: Radius.circular(20))),
+                                        builder: (ctx) => Padding(
+                                          padding: const EdgeInsets.all(20.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text('Contact Options',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleLarge),
+                                              const SizedBox(height: 16),
+                                              if (phone.isNotEmpty)
+                                                ListTile(
+                                                  leading: const Icon(
+                                                      Icons.phone,
+                                                      color: Colors.teal),
+                                                  title: Text(phone),
+                                                  onTap: () async {
+                                                    final uri =
+                                                        Uri.parse('tel:$phone');
+                                                    if (await canLaunchUrl(
+                                                        uri)) {
+                                                      await launchUrl(uri);
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        const SnackBar(
+                                                            content: Text(
+                                                                'Could not launch phone app')),
+                                                      );
+                                                    }
+                                                  },
+                                                ),
+                                              if (email.isNotEmpty)
+                                                ListTile(
+                                                  leading: const Icon(
+                                                      Icons.email,
+                                                      color: Colors.teal),
+                                                  title: Text(email),
+                                                  onTap: () async {
+                                                    final uri = Uri.parse(
+                                                        'mailto:$email');
+                                                    if (await canLaunchUrl(
+                                                        uri)) {
+                                                      await launchUrl(uri);
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        const SnackBar(
+                                                            content: Text(
+                                                                'Could not launch email app')),
+                                                      );
+                                                    }
+                                                  },
+                                                ),
+                                              if (website.isNotEmpty)
+                                                ListTile(
+                                                  leading: const Icon(
+                                                      Icons.language,
+                                                      color: Colors.teal),
+                                                  title: Text(website),
+                                                  onTap: () async {
+                                                    final uri = Uri.parse(website
+                                                            .startsWith('http')
+                                                        ? website
+                                                        : 'https://$website');
+                                                    if (await canLaunchUrl(
+                                                        uri)) {
+                                                      await launchUrl(uri);
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        const SnackBar(
+                                                            content: Text(
+                                                                'Could not launch website')),
+                                                      );
+                                                    }
+                                                  },
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
                                     }
                                   : null,
                               child: const Text("Contact"),

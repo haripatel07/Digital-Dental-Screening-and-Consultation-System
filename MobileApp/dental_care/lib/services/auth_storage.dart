@@ -4,7 +4,14 @@ class AuthStorage {
   static const _tokenKey = 'auth_token';
   static final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  static Future<void> saveToken(String token) async {
+  /// Accepts login response and stores user_id as token
+  static Future<void> saveToken(dynamic loginResponse) async {
+    String token = '';
+    if (loginResponse is String) {
+      token = loginResponse;
+    } else if (loginResponse is Map) {
+      token = loginResponse['token'] ?? loginResponse['user']?['id'] ?? '';
+    }
     await _storage.write(key: _tokenKey, value: token);
   }
 
