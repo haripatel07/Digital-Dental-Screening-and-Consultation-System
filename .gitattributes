@@ -1,7 +1,6 @@
 *.pth filter=lfs diff=lfs merge=lfs -text
 *.ipynb linguist-detectable=false
 *.html linguist-detectable=false
-
 # Exclude model files and binaries
 *.pth linguist-vendored
 *.h5 linguist-vendored
@@ -14,12 +13,12 @@ CMakeLists.txt linguist-vendored
 *.cxx linguist-vendored
 *.c linguist-vendored
 *.h linguist-vendored
-
 # Exclude iOS/Swift auto-generated files
 *.swift linguist-vendored
-
 # Ensure our main languages are properly counted
 *.dart linguist-detectable=true
 *.ts linguist-detectable=true
 *.tsx linguist-detectable=true
 *.py linguist-detectable=true
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
