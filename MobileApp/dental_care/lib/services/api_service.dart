@@ -75,7 +75,7 @@ class ApiService {
   }
 
   Future<List<Map<String, dynamic>>> nearbyClinics(String city) async {
-    final url = Uri.parse('$baseUrl/clinics?location=$city');
+    final url = Uri.parse('$baseUrl/clinics/?location=$city');
     final response = await http.get(url);
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
