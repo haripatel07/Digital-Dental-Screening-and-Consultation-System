@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const baseUrl = 'http://127.0.0.1:8001';
+const baseUrl = 'https://haripatel07-dental-care.hf.space';
 
 export const fetchArticles = async () => {
-  const response = await axios.get(`${baseUrl}/content/articles`);
+  const response = await axios.get(`${baseUrl}/content/articles/`);
   if (response.status === 200) {
     return response.data.articles || [];
   }
@@ -53,23 +53,23 @@ export const predictXray = async (file: File) => {
 };
 
 export const login = async (email: string, password: string) => {
-  const response = await axios.post(`${baseUrl}/auth/login`, { email, password });
+  const response = await axios.post(`${baseUrl}/auth/login/`, { email, password });
   if (response.status === 200) {
     return response.data;
   }
-  throw new Error('Login failed');
+  throw new Error(response.data?.detail || 'Login failed');
 };
 
 export const signup = async (name: string, email: string, password: string) => {
-  const response = await axios.post(`${baseUrl}/auth/signup`, { name, email, password });
+  const response = await axios.post(`${baseUrl}/auth/signup/`, { name, email, password });
   if (response.status === 200) {
     return response.data;
   }
-  throw new Error('Signup failed');
+  throw new Error(response.data?.detail || 'Signup failed');
 };
 
 export const fetchProfile = async (token: string) => {
-  const response = await axios.get(`${baseUrl}/auth/user-details`, {
+  const response = await axios.get(`${baseUrl}/auth/user-details/`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (response.status === 200) {
@@ -79,7 +79,7 @@ export const fetchProfile = async (token: string) => {
 };
 
 export const getUserDetails = async (token: string) => {
-  const response = await axios.get(`${baseUrl}/auth/user-details`, {
+  const response = await axios.get(`${baseUrl}/auth/user-details/`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (response.status === 200) {
@@ -95,7 +95,7 @@ export const updateUserDetails = async (token: string, details: {
   city?: string;
   age?: number;
 }) => {
-  const response = await axios.put(`${baseUrl}/auth/user-details`, details, {
+  const response = await axios.put(`${baseUrl}/auth/user-details/`, details, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (response.status === 200) {
@@ -105,7 +105,7 @@ export const updateUserDetails = async (token: string, details: {
 };
 
 export const fetchClinics = async (city?: string) => {
-  const url = city ? `${baseUrl}/clinics?location=${encodeURIComponent(city)}` : `${baseUrl}/clinics`;
+  const url = city ? `${baseUrl}/clinics/?location=${encodeURIComponent(city)}` : `${baseUrl}/clinics/`;
   const response = await axios.get(url);
   if (response.status === 200) {
     const clinics = response.data.clinics || [];
@@ -119,7 +119,7 @@ export const fetchClinics = async (city?: string) => {
 };
 
 export const sendChatbotMessage = async (message: string) => {
-  const response = await axios.post(`${baseUrl}/chatbot`, { message });
+  const response = await axios.post(`${baseUrl}/chatbot/`, { message });
   if (response.status === 200) {
     return response.data.reply;
   }

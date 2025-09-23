@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Button, TextField, Typography, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { signup } from "../services/apiService";
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -16,7 +16,7 @@ export default function Signup() {
     setLoading(true);
     setError(null);
     try {
-      await axios.post("http://127.0.0.1:8001/auth/signup", { name, email, password });
+  await signup(name, email, password);
       navigate("/login");
     } catch (err: any) {
       setError(err.response?.data?.message || "Signup failed");

@@ -1,4 +1,7 @@
-/* Articles.css - Clean, modern UI for articles page */
+
+.container {
+  background-color: teal;
+}
 .articles-list {
   max-width: 800px;
   margin: 2rem auto;

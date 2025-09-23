@@ -3,19 +3,19 @@ import { useLocation, useNavigate } from "react-router-dom";
 import type { ResultModel } from "../models/ResultModel";
 import "../styles/Result.css";
 
-const ResultTile: React.FC<{
+type ResultTileProps = {
   title: string;
   value: string;
   subtitle?: string;
   multiline?: boolean;
-}> = ({ title, value, subtitle, multiline }) => (
+};
+
+const ResultTile: React.FC<ResultTileProps> = ({ title, value, subtitle, multiline }) => (
   <div className="result-tile">
     <div className="result-tile-title">{title}</div>
     <div
       className="result-tile-value"
-      style={{
-        whiteSpace: multiline ? "pre-wrap" : "nowrap",
-      }}
+      style={{ whiteSpace: multiline ? "pre-wrap" : "nowrap" }}
     >
       {value}
     </div>
@@ -41,33 +41,15 @@ const Result: React.FC = () => {
   return (
     <div className="result-gradient">
       <div className="result-header">
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              fontSize: 40,
-              color: "#008080",
-              marginBottom: 10,
-            }}
-          >
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div style={{ fontSize: 44, color: "#008080", marginBottom: 8 }}>
             {result.disease?.toLowerCase().includes("xray") ? (
               <span className="material-icons">medical_services</span>
             ) : (
               <span className="material-icons">camera_alt</span>
             )}
           </div>
-          <div
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              color: "#008080",
-            }}
-          >
+          <div style={{ fontSize: 22, fontWeight: 700, color: "#008080", marginBottom: 4 }}>
             {result.disease?.toLowerCase().includes("xray")
               ? "X-ray Analysis Result"
               : "Normal Image Analysis Result"}
@@ -75,8 +57,10 @@ const Result: React.FC = () => {
         </div>
       </div>
       <div className="result-content">
-        {/* Image Preview */}
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 24, textAlign: "center" }}>
+          <div style={{ fontWeight: 600, fontSize: 18, color: "#008080", marginBottom: 10 }}>
+            Image Preview
+          </div>
           {imageSrc ? (
             <img
               src={imageSrc}
@@ -88,25 +72,19 @@ const Result: React.FC = () => {
                 width: "100%",
                 maxHeight: 300,
                 objectFit: "cover",
+                boxShadow: "0 2px 12px rgba(0,128,128,0.08)",
               }}
             />
           ) : (
-            <div
-              style={{
-                color: "#888",
-                textAlign: "center",
-                padding: 30,
-              }}
-            >
+            <div style={{ color: "#888", textAlign: "center", padding: 30 }}>
               No image provided
             </div>
           )}
         </div>
-        {/* Results Section */}
-        <ResultTile
-          title="Predicted Condition"
-          value={result.disease || "—"}
-        />
+        <div style={{ fontWeight: 600, fontSize: 18, color: "#008080", marginBottom: 10 }}>
+          Analysis Details
+        </div>
+        <ResultTile title="Predicted Condition" value={result.disease || "—"} />
         <div style={{ height: 12 }} />
         <ResultTile
           title="Confidence Score"
@@ -133,19 +111,9 @@ const Result: React.FC = () => {
           multiline
         />
         <div style={{ height: 30 }} />
-        {/* Back button */}
-        <button
-          className="result-back-btn"
-          onClick={() => navigate("/")}
+        <button className="result-back-btn" onClick={() => navigate("/")}
         >
-          <span
-            className="material-icons"
-            style={{
-              verticalAlign: "middle",
-              marginRight: 8,
-              color: "#fff",
-            }}
-          >
+          <span className="material-icons" style={{ verticalAlign: "middle", marginRight: 8, color: "#fff" }}>
             home
           </span>
           Back to Home
