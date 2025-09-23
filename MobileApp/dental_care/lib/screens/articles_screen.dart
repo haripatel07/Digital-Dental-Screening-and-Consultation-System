@@ -52,12 +52,18 @@ class _ArticlesScreenState extends State<ArticlesScreen> {
                   trailing: const Icon(Icons.open_in_new, color: Colors.teal),
                   onTap: () async {
                     final url = article['url'] ?? '';
-                    if (await canLaunchUrl(Uri.parse(url))) {
-                      await launchUrl(Uri.parse(url));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Could not open article')),
+                    final uri = Uri.tryParse(url);
+                    if (uri != null) {
+                      final success = await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
                       );
+                      if (!success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('Could not open article: $url')),
+                        );
+                      }
                     }
                   },
                 ),

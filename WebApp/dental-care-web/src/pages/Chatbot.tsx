@@ -18,10 +18,18 @@ export default function Chatbot() {
     try {
       const reply = await sendChatbotMessage(msg);
       setMessages((prev) => [...prev, { sender: "bot", text: reply }]);
-    } catch (e) {
+    } catch (e: any) {
+      let errorMsg = "Error connecting to chatbot";
+      if (e?.response?.data?.reply) {
+        errorMsg = e.response.data.reply;
+      } else if (e?.response?.data?.message) {
+        errorMsg = e.response.data.message;
+      } else if (e?.message) {
+        errorMsg = e.message;
+      }
       setMessages((prev) => [
         ...prev,
-        { sender: "bot", text: "Error connecting to chatbot" },
+        { sender: "bot", text: errorMsg },
       ]);
     } finally {
       setLoading(false);

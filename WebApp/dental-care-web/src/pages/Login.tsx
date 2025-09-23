@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, Button, TextField, Typography, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { saveToken } from "../services/authStorage";
-import axios from "axios";
+import { login } from "../services/apiService";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,11 +16,8 @@ export default function Login() {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8001/auth/login",
-        { email, password }
-      );
-      saveToken(response.data); // Pass full response to saveToken
+      const response = await login(email, password);
+      saveToken(response); // Pass full response to saveToken
       navigate("/");
     } catch (err: any) {
       setError(err.response?.data?.message || "Login failed");

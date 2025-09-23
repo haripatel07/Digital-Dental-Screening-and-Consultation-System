@@ -26,10 +26,10 @@
   margin-bottom: 0.5rem;
 }
 .result-content {
-  background: #fff;
-  border-radius: 0 0 18px 18px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  padding: 2rem 2.5rem;
+  background: linear-gradient(90deg, #e0f7fa 0%, #f7f7f7 100%);
+  border-radius: 0 0 22px 22px;
+  box-shadow: 0 8px 32px rgba(0,128,128,0.10);
+  padding: 2.2rem 2.7rem;
   text-align: center;
   width: 420px;
 }

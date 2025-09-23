@@ -10,12 +10,12 @@
 }
 
 .profile-card {
-  padding: 24px;
-  border-radius: 18px;
+  padding: 28px;
+  border-radius: 22px;
   text-align: center;
-  margin-bottom: 24px;
-  background: #fff;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  margin-bottom: 28px;
+  background: linear-gradient(90deg, #e0f7fa 0%, #f7f7f7 100%);
+  box-shadow: 0 8px 32px rgba(0,128,128,0.10);
 }
 
 .clinic-tile {
