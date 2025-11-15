@@ -21,7 +21,7 @@ def get_articles():
             soup = BeautifulSoup(r.text, "html.parser")
             article_tags = soup.select("h2.title > a.post-title.post-url")
 
-            if not article_tags:  # No more articles
+            if not article_tags:  
                 break
 
             for a in article_tags:
