@@ -28,3 +28,8 @@ app.include_router(articles.router, prefix="/content", tags=["Articles"])
 @app.get("/")
 def root():
     return {"message": "Dental Screening API is running!"}
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint for monitoring service status."""
+    return {"status": "healthy", "service": "Dental Screening API"}
