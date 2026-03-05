@@ -6,6 +6,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.0+-blue.svg)](https://flutter.dev/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 A comprehensive, AI-powered dental health platform that enables users to screen dental conditions through image analysis, receive AI-driven recommendations, and connect with nearby dental clinics. This full-stack application integrates machine learning models for accurate diagnosis, a responsive web interface, a cross-platform mobile app, and a robust backend API.
 
@@ -114,6 +115,24 @@ Digital-Dental-Screening-and-Consultation-System/
 
 4. The API will be available at `http://localhost:8001`
 
+### Docker Setup (Alternative)
+For containerized deployment:
+
+1. Ensure Docker is installed on your system.
+
+2. Build the backend Docker image:
+   ```bash
+   cd Backend
+   docker build -t dental-screening-api .
+   ```
+
+3. Run the container:
+   ```bash
+   docker run -p 7860:7860 dental-screening-api
+   ```
+
+4. The API will be available at `http://localhost:7860`
+
 ### Web Application Setup
 1. Navigate to the WebApp directory:
    ```bash
@@ -182,7 +201,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Hari Patel** - [GitHub](https://github.com/haripatel07) | [LinkedIn](https://linkedin.com/in/haripatel87)
 
-**Het Patel** - [GitHub](https://github.com/hetpatel) | [LinkedIn](https://linkedin.com/in/het-patel)
+**Het Patel** - [GitHub](https://github.com/hetpatel79) | [LinkedIn](https://linkedin.com/in/het-patel)
 
 Project Repository: [https://github.com/haripatel07/Digital-Dental-Screening-and-Consultation-System](https://github.com/haripatel07/Digital-Dental-Screening-and-Consultation-System)
 

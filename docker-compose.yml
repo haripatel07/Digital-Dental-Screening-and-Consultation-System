@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  dental-backend:
+    build: ./Backend
+    ports:
+      - "7860:7860"
+    environment:
+      - HF_HOME=/tmp/huggingface
+    volumes:
+      - ./Backend/Models:/app/Models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
